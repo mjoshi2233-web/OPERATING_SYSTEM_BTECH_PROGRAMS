@@ -1,0 +1,62 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+int main() {
+
+    pid_t orphan, zombie;
+
+    printf("Process Demonstration\n");
+    printf("=====================\n");
+
+    orphan = fork();
+
+    if (orphan < 0) {
+        printf("Orphan fork failed!\n");
+        return 1;
+    }
+
+    if (orphan == 0) {
+        printf("\n--- Orphan Process ---\n");
+        printf("Child PID: %d\n", getpid());
+        printf("Original Parent PID: %d\n", getppid());
+
+        sleep(5);
+
+        printf("After Parent Terminates:\n");
+        printf("Child PID: %d\n", getpid());
+        printf("New Parent PID: %d\n", getppid());
+
+        exit(0);
+    }
+
+    printf("\nParent PID: %d\n", getpid());
+
+    sleep(2);
+
+    zombie = fork();
+
+    if (zombie < 0) {
+        printf("Zombie fork failed!\n");
+        return 1;
+    }
+
+    if (zombie == 0) {
+        printf("\n--- Zombie Process ---\n");
+        printf("Child PID: %d\n", getpid());
+        printf("Child Process Terminated\n");
+        exit(0);
+    }
+
+    printf("Zombie child created with PID: %d\n", zombie);
+    printf("Parent is not calling wait() immediately.\n");
+
+    sleep(10);
+
+    wait(NULL);
+
+    printf("\nParent Process Terminated\n");
+
+    return 0;
+}
